@@ -38,6 +38,7 @@ class Waf(Generator):
              'conan_os_build = "{0}"'.format(str(self.settings.get_safe("os_build")))
              ]
         )
+        
         sections.append("conan = {\n")
         self.deps_build_info.libs = self._remove_lib_extension(self.deps_build_info.libs)
 
