@@ -2,7 +2,7 @@ from conans.model import Generator
 from conans import ConanFile
 
 
-class waf(Generator):
+class Waf(Generator):
 
     @property
     def filename(self):
