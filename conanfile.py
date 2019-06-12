@@ -9,7 +9,7 @@ class Waf(Generator):
 
     @property
     def filename(self):
-        return "wafconan.py"
+        return "waf_conan_libs_info.py"
 
     @property
     def content(self):
@@ -27,20 +27,10 @@ class Waf(Generator):
                     '    "{dep}_version" : "{info.version}",\n')
 
         sections = []
-        sections.extend(
-            ['conan_arch = "{0}"'.format(str(self.settings.get_safe("arch"))),
-             'conan_arch_build = "{0}"'.format(str(self.settings.get_safe("arch_build"))),
-             'conan_build_type = "{0}"'.format(str(self.settings.get_safe("build_type"))),
-             'conan_compiler = "{0}"'.format(str(self.settings.get_safe("compiler"))),
-             'conan_compiler_runtime = "{0}"'.format(str(self.settings.get_safe("compiler.runtime"))),
-             'conan_compiler_version = "{0}"'.format(str(self.settings.get_safe("compiler.version"))),
-             'conan_os = "{0}"'.format(str(self.settings.get_safe("os"))),
-             'conan_os_build = "{0}"'.format(str(self.settings.get_safe("os_build")))
-             ]
-        )
-        
+
         sections.append("conan = {\n")
-        self.deps_build_info.libs = self._remove_lib_extension(self.deps_build_info.libs)
+        self.deps_build_info.libs = self._remove_lib_extension(
+            self.deps_build_info.libs)
 
         all_flags = template.format(dep="conan", info=self.deps_build_info)
         sections.append(all_flags)
@@ -61,34 +51,31 @@ class Waf(Generator):
                 sections.append(all_flags)
 
         sections.append("}\n")
-        sections.append("""def configure(ctx):""")
-        sections.append("""    ctx.env.CONAN_LIBS = []""")
-        #should not inject build info, leave it there until the build helper is ready
-        sections.append("""    ctx.env.MSVC_VERSION = conan_compiler_version""")
-        sections.append("""    ctx.env.INCLUDES.extend(conan['conan']['CPPPATH'])""")
-        sections.append("""    ctx.env.LIBPATH.extend(conan['conan']['LIBPATH'])""")
-        sections.append("""    ctx.env.CXXFLAGS.append("/{}".format(conan_compiler_runtime))""")
-        sections.append("""    for libname, settings in conan.items():""")
-        sections.append("""        if 'CPPPATH' in settings:""")
-        sections.append("""            ctx.env["INCLUDES_{}".format(libname)] = \
-settings['CPPPATH']""")
-        sections.append("""        if 'LIBPATH' in settings:""")
-        sections.append("""            ctx.env["LIBPATH_{}".format(libname)] = \
-settings['LIBPATH']""")
-        sections.append("""        if 'LIBS' in settings:""")
-        sections.append("""            ctx.env["LIB_{}".format(libname)] = settings['LIBS']""")
-        sections.append("""            ctx.env.CONAN_LIBS.append(libname)""")
-        sections.append("""    if ctx.env.DEST_OS == 'win32' and ctx.env.CC_NAME == 'msvc':""")
-        sections.append("""        ctx.check_cc(lib='user32', mandatory=True)""")
-        sections.append("""        ctx.check_cc(lib='comctl32', mandatory=True)""")
-        sections.append("""        ctx.check_cc(lib='kernel32', mandatory=True)""")
-        sections.append("""        ctx.check_cc(lib='ws2_32', mandatory=True)""")
-        sections.append("""        ctx.check_cc(lib='gdi32', mandatory=True)""")
-        sections.append("""        ctx.check_cc(lib='Advapi32', mandatory=True)""")
-        sections.append("""        ctx.check_cc(lib='Comdlg32', mandatory=True)""")
-        sections.append("""        ctx.env.CONAN_LIBS.extend(['USER32', 'COMCTL32', 'KERNEL32',\
-'WS2_32', 'GDI32', 'ADVAPI32', 'COMDLG32'])""")
 
+        template = ('def configure(ctx):\n'
+                    '    ctx.env.CONAN_LIBS = []\n'
+                    '    ctx.env.INCLUDES.extend(conan[\'conan\'][\'CPPPATH\'])\n'
+                    '    ctx.env.LIBPATH.extend(conan[\'conan\'][\'LIBPATH\'])\n'
+                    '    for libname, settings in conan.items():\n'
+                    '        if \'CPPPATH\' in settings:\n'
+                    '            ctx.env["INCLUDES_{}".format(libname)] = settings[\'CPPPATH\']\n'
+                    '        if \'LIBPATH\' in settings:\n'
+                    '            ctx.env["LIBPATH_{}".format(libname)] = settings[\'LIBPATH\']\n'
+                    '        if \'LIBS\' in settings:\n'
+                    '            ctx.env["LIB_{}".format(libname)] = settings[\'LIBS\']\n'
+                    '            ctx.env.CONAN_LIBS.append(libname)\n'
+                    '    if ctx.env.DEST_OS == \'win32\' and ctx.env.CC_NAME == \'msvc\':\n'
+                    '        ctx.check_cc(lib=\'user32\', mandatory=True)\n'
+                    '        ctx.check_cc(lib=\'comctl32\', mandatory=True)\n'
+                    '        ctx.check_cc(lib=\'kernel32\', mandatory=True)\n'
+                    '        ctx.check_cc(lib=\'ws2_32\', mandatory=True)\n'
+                    '        ctx.check_cc(lib=\'gdi32\', mandatory=True)\n'
+                    '        ctx.check_cc(lib=\'Advapi32\', mandatory=True)\n'
+                    '        ctx.check_cc(lib=\'Comdlg32\', mandatory=True)\n'
+                    '        ctx.env.CONAN_LIBS.extend([\'USER32\', \'COMCTL32\', \'KERNEL32\', \
+\'WS2_32\', \'GDI32\', \'ADVAPI32\', \'COMDLG32\'])\n')
+
+        sections.append(template)
         return "\n".join(sections)
 
 
