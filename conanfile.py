@@ -61,7 +61,7 @@ class Waf(Generator):
                 sections.append(all_flags)
 
         sections.append("}\n")
-        sections.append("""def conan_configure_libs(ctx):""")
+        sections.append("""def configure(ctx):""")
         sections.append("""    ctx.env.CONAN_LIBS = []""")
         #should not inject build info, leave it there until the build helper is ready
         sections.append("""    ctx.env.MSVC_VERSION = conan_compiler_version""")
