@@ -65,16 +65,7 @@ def configure(ctx):
         if 'LIBS' in settings:
             ctx.env['LIB_{}'.format(libname)] = settings['LIBS']
             ctx.env.CONAN_LIBS.append(libname)
-    if ctx.env.DEST_OS == 'win32' and ctx.env.CC_NAME == 'msvc':
-        ctx.check_cc(lib='user32', mandatory=True)
-        ctx.check_cc(lib='comctl32', mandatory=True)
-        ctx.check_cc(lib='kernel32', mandatory=True)
-        ctx.check_cc(lib='ws2_32', mandatory=True)
-        ctx.check_cc(lib='gdi32', mandatory=True)
-        ctx.check_cc(lib='Advapi32', mandatory=True)
-        ctx.check_cc(lib='Comdlg32', mandatory=True)
-        ctx.env.CONAN_LIBS.extend(['USER32', 'COMCTL32', 'KERNEL32', \
-'WS2_32', 'GDI32', 'ADVAPI32', 'COMDLG32'])"""
+"""
 
         sections.append(template)
         return "\n".join(sections)
