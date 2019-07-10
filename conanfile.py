@@ -51,23 +51,18 @@ class Waf(Generator):
                 sections.append(all_flags)
 
         sections.append("}\n")
-
-        template =  """
-def configure(ctx):
-    ctx.env.CONAN_LIBS = []
-    ctx.env.INCLUDES.extend(conan['conan']['CPPPATH'])
-    ctx.env.LIBPATH.extend(conan['conan']['LIBPATH'])
-    for libname, settings in conan.items():
-        if 'CPPPATH' in settings:
-            ctx.env['INCLUDES_{}'.format(libname)] = settings['CPPPATH']
-        if 'LIBPATH' in settings:
-            ctx.env['LIBPATH_{}'.format(libname)] = settings['LIBPATH']
-        if 'LIBS' in settings:
-            ctx.env['LIB_{}'.format(libname)] = settings['LIBS']
-            ctx.env.CONAN_LIBS.append(libname)
-"""
-
-        sections.append(template)
+        sections.append("def configure(ctx):")
+        sections.append("    ctx.env.CONAN_LIBS = []")
+        sections.append("    ctx.env.INCLUDES.extend(conan['conan']['CPPPATH'])")
+        sections.append("    ctx.env.LIBPATH.extend(conan['conan']['LIBPATH'])")
+        sections.append("    for libname, settings in conan.items():")
+        sections.append("        if 'CPPPATH' in settings:")
+        sections.append("            ctx.env['INCLUDES_{}'.format(libname)] = settings['CPPPATH']")
+        sections.append("        if 'LIBPATH' in settings:")
+        sections.append("            ctx.env['LIBPATH_{}'.format(libname)] = settings['LIBPATH']")
+        sections.append("        if 'LIBS' in settings:")
+        sections.append("            ctx.env['LIB_{}'.format(libname)] = settings['LIBS']")
+        sections.append("            ctx.env.CONAN_LIBS.append(libname)")
         return "\n".join(sections)
 
 
