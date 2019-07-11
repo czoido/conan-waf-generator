@@ -32,29 +32,16 @@ class Waf(Generator):
         self.deps_build_info.libs = self._remove_lib_extension(
             self.deps_build_info.libs)
 
-        all_flags = template.format(dep="conan", info=self.deps_build_info)
-        sections.append(all_flags)
-
-        for config, cpp_info in self.deps_build_info.configs.items():
-            all_flags = template.format(dep="conan:" + config, info=cpp_info)
-            sections.append(all_flags)
-
         for dep_name, info in self.deps_build_info.dependencies:
-            dep_name = dep_name.replace("-", "_")
-            info.libs = self._remove_lib_extension(info.libs)
-            dep_flags = template.format(dep=dep_name, info=info)
-            sections.append(dep_flags)
-
-            for config, cpp_info in info.configs.items():
-                all_flags = template.format(
-                    dep=dep_name + ":" + config, info=cpp_info)
-                sections.append(all_flags)
+            if dep_name not in self.conanfile.build_requires:
+                dep_name = dep_name.replace("-", "_")
+                info.libs = self._remove_lib_extension(info.libs)
+                dep_flags = template.format(dep=dep_name, info=info)
+                sections.append(dep_flags)
 
         sections.append("}\n")
         sections.append("def configure(ctx):")
         sections.append("    ctx.env.CONAN_LIBS = []")
-        sections.append("    ctx.env.INCLUDES.extend(conan['conan']['CPPPATH'])")
-        sections.append("    ctx.env.LIBPATH.extend(conan['conan']['LIBPATH'])")
         sections.append("    for libname, settings in conan.items():")
         sections.append("        if 'CPPPATH' in settings:")
         sections.append("            ctx.env['INCLUDES_{}'.format(libname)] = settings['CPPPATH']")
